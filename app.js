@@ -19,7 +19,7 @@ const defs={
   'grantM':['Atlas investment (upfront)',.1,5,.1,'$m','Build, validation, planned maintenance, and direct engagement.'],
   'implement':['Adopted reforms that deliver benefits',0,100,5,'%','Share of adopted reforms that produce benefits. Accounts for weak enforcement, incomplete implementation, or little response from builders and firms. Same rate for both channels.'],
   'direct.dataQuality':['Usable policy data',0,100,5,'%','Share of directly engaged cities with usable data after collection and validation.'],
-  'open.dataQuality':['Usable policy data',0,100,5,'%','Share of the broader sample with usable data after collection and validation.'],
+  'open.dataQuality':['Usable policy data',0,100,5,'%','Share of targeted cities with usable policy data.'],
   'direct.count':['Cities with direct engagement',0,20,1,'cities','Excluded from the open-platform group.'],
   'direct.populationM':['Average city population',1,40,.5,'million','Assumed average for the selected Indian megacities.'],
   'direct.upliftPP':['Increase in adoption probability',0,20,.1,'pp','Among cities reached with a feasible reform and usable data. Five percentage points could mean 20% → 25%.'],
