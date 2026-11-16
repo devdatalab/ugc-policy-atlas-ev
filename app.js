@@ -1,11 +1,10 @@
-import { UGC_CITIES, DEFAULTS, clone, normalize, evaluate, comparisonScenario } from './model.js';
+import { UGC_CITIES, DEFAULTS, clone, normalize, evaluate } from './model.js';
 
 const storageKey='ugc-atlas-ev-v7';
 const $=s=>document.querySelector(s);
 const n=(v,d=2)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:d}).format(v);
 const money=v=>(v<0?'−':'')+'$'+n(Math.abs(v)/1e6,2)+'m';
 const people=v=>v>=1e6?n(v/1e6,2)+'m':n(v,0);
-const pct=v=>n(v*100,4)+'%';
 let state=clone(DEFAULTS);
 let initialMessage='';
 try {
@@ -49,8 +48,9 @@ function controls(container,paths){
     const [label,min,max,step,unit,help]=defs[path];
     const id=path.replaceAll('.','-');
     const el=document.createElement('div');el.className='control';
-    const tooltip=`<span class="info-wrap"><button type="button" class="info-button" aria-label="About ${label}" aria-describedby="tip-${id}">i</button><span class="info-tooltip" id="tip-${id}" role="tooltip">${help}</span></span>`;
-    el.innerHTML=`<div class="control-heading"><span class="control-label"><label for="range-${id}">${label}</label>${tooltip}</span><span class="value-entry"><input type="number" id="number-${id}" aria-label="${label}, ${unit}" min="${min}" max="${max}" step="${step}" data-path="${path}" data-kind="number" aria-describedby="tip-${id}"><span>${unit}</span></span></div><input type="range" id="range-${id}" min="${min}" max="${max}" step="${step}" data-path="${path}" data-kind="range" aria-describedby="tip-${id}">`;
+    const tooltip=path==='grantM'?'':`<span class="info-wrap"><button type="button" class="info-button" aria-label="About ${label}" aria-describedby="tip-${id}">i</button><span class="info-tooltip" id="tip-${id}" role="tooltip">${help}</span></span>`;
+    const description=path==='grantM'?'':`aria-describedby="tip-${id}"`;
+    el.innerHTML=`<div class="control-heading"><span class="control-label"><label for="range-${id}">${label}</label>${tooltip}</span><span class="value-entry"><input type="number" id="number-${id}" aria-label="${label}, ${unit}" min="${min}" max="${max}" step="${step}" data-path="${path}" data-kind="number" ${description}><span>${unit}</span></span></div><input type="range" id="range-${id}" min="${min}" max="${max}" step="${step}" data-path="${path}" data-kind="range" ${description}>`;
     target.append(el);
   }
 }
@@ -73,34 +73,21 @@ function sync(){
     el.value=String(get(state,el.dataset.path));
     if(el.type==='range')el.setAttribute('aria-valuetext',n(get(state,el.dataset.path),3)+' '+defs[el.dataset.path][4]);
   });
-  $('#direct-enabled').checked=state.direct.enabled;$('#open-enabled').checked=state.open.enabled;
 }
 function render(){
+  state.direct.enabled=true;state.open.enabled=true;
   const r=evaluate(state);state=r.state;
   const d=r.direct,o=r.open;
   $('#net').textContent=money(r.net);$('#net').classList.toggle('negative',r.net<0);
   $('#multiple').textContent=n(r.benefitMultiple,1)+'×';
   $('#implemented').textContent=n(r.implementations,2);
-  $('header p').textContent=`UGC data: ${n(UGC_CITIES,0)} cities. Policy documents: ${n(state.policyCities,0)} cities.`;
-  $('.channel.direct').classList.toggle('disabled',!state.direct.enabled);
-  $('.channel.open').classList.toggle('disabled',!state.open.enabled);
   const maxContribution=Math.max(Math.abs(d.net),Math.abs(o.net),1);
-  $('#contributions').innerHTML=[d,o].map((c,i)=>`<div class="contribution ${i?'open-bar':''}"><div class="contribution-top"><span>${c.name}</span><span>${money(c.net)} PV</span></div><div class="bar-track" aria-hidden="true"><div class="bar ${c.net<0?'negative-bar':''}" style="width:${Math.abs(c.net)/maxContribution*100}%"></div></div></div>`).join('');
-  for(const [name,c] of [['direct',d],['open',o]])$('#'+name+'-summary').innerHTML=`<span><b>${n(c.count,0)}</b> cities · <b>${people(c.population)}</b> residents</span><span><b>${money(c.net)}</b> PV</span>`;
+  for(const [name,c] of [['direct',d],['open',o]]) {
+    $('#'+name+'-summary').innerHTML=`<p class="channel-value"><b>${money(c.net)}</b> total estimated present value</p><div class="bar-track" aria-hidden="true"><div class="bar ${c.net<0?'negative-bar':''}" style="width:${Math.abs(c.net)/maxContribution*100}%"></div></div><div class="channel-population">${n(c.count,0)} cities · ${people(c.population)} residents</div>`;
+  }
   ['mega','large','other'].forEach((band,i)=>$('#'+band+'-count').textContent=n(o.rows[i].count,0));
   $('#other-available').textContent=n(UGC_CITIES-state.direct.count-state.open.megaCount-state.open.largeCount,0);
   $('#population-total').textContent=`${people(o.population)} residents · ${n(o.population/Math.max(o.count,1)/1e6,2)}m per city on average.`;
-  const rows=[
-    ['Covered cities',n(d.count,0),n(o.count,0)],
-    ['Covered population',people(d.population),people(o.population)],
-    ['Cities with usable data and feasible reforms',n(d.qualified,2),n(o.qualified,2)],
-    ['Of these, policymakers consider the Atlas',n(d.reached,2),n(o.reached,2)],
-    ['Additional adoptions',n(d.adoptions,4),n(o.adoptions,4)],
-    ['Expected number of additional successful reforms',n(d.implementations,4),n(o.implementations,4)],
-    ['Chance of an additional implemented reform per city',pct(d.implementationProbability),pct(o.implementationProbability)],
-    ['Expected residents in reform cities',people(d.exposedPopulation),people(o.exposedPopulation)]
-  ];
-  $('#funnel').innerHTML=rows.map(([label,a,b])=>`<tr><th scope="row">${label}</th><td class="numeric">${a}</td><td class="numeric">${b}</td></tr>`).join('');
   const audit=[
     ['Worker benefits (present value)',money(d.gross),money(o.gross),money(r.gross)],
     ['Extra policy costs',money(-d.costs),money(-o.costs),money(-r.policyCosts)],
@@ -110,8 +97,6 @@ function render(){
     ['Net expected benefit','—','—',money(r.net)]
   ];
   $('#audit').innerHTML=audit.map(([label,a,b,c],i)=>`<tr class="${i===5?'total-row':''}"><th scope="row">${label}</th><td class="numeric">${a}</td><td class="numeric">${b}</td><td class="numeric">${c}</td></tr>`).join('');
-  const describe=(pp,enabled)=>!enabled?'channel disabled':pp===0?'0 pp — other channel covers costs':pp>100||!Number.isFinite(pp)?'not attainable':n(pp,3)+' percentage points';
-  $('#break-even').textContent=`Break-even adoption increase: direct ${describe(r.directBreakEvenPP,state.direct.enabled)}; open ${describe(r.openBreakEvenPP,state.open.enabled)}. Benefit–cost ratio (all costs): ${n(r.conventionalBCR,2)}:1.`;
   sensitivity();
   coverageSensitivity();
   $('#annual-benefits').innerHTML=`<table><thead><tr><th>Annual flows</th><th class="numeric">Direct</th><th class="numeric">Open</th></tr></thead><tbody><tr><th>Expected annual benefit</th><td class="numeric">${money(d.annualExpected)}</td><td class="numeric">${money(o.annualExpected)}</td></tr><tr><th>Benefit years</th><td class="numeric">${state.direct.delay+1}–${state.direct.delay+state.duration}</td><td class="numeric">${state.open.delay+1}–${state.open.delay+state.duration}</td></tr></tbody></table><p class="note">Discount rate: ${n(state.discountPct)}% per year. Policy costs are total present-value allowances; the Atlas investment is upfront.</p>`;
@@ -154,23 +139,8 @@ function updateInput(el,commit=false){
 }
 document.addEventListener('input',event=>updateInput(event.target));
 document.addEventListener('change',event=>updateInput(event.target,true));
-for(const key of ['direct','open'])$('#'+key+'-enabled').addEventListener('change',event=>{state[key].enabled=event.target.checked;render();persist();});
 $('#sensitivity').addEventListener('click',event=>{
   const el=event.target.closest('[data-direct]');if(!el)return;
   state.direct.upliftPP=Number(el.dataset.direct);state.open.upliftPP=Number(el.dataset.open);render();persist();
-});
-function applyPreset(s){state=s;history.replaceState(null,'',location.pathname+location.search);render();persist();$('#status').textContent='Scenario applied.';}
-$('#reset').addEventListener('click',()=>applyPreset(clone(DEFAULTS)));
-$('#full-scale').addEventListener('click',()=>applyPreset(clone(DEFAULTS)));
-$('#comparison').addEventListener('click',()=>applyPreset(comparisonScenario()));
-$('#share').addEventListener('click',async()=>{
-  const url=location.origin+location.pathname+'#s='+encodeURIComponent(btoa(JSON.stringify(state)));
-  history.replaceState(null,'',url);
-  try{await navigator.clipboard.writeText(url);$('#status').textContent='Scenario link copied.';}catch{$('#status').textContent='Scenario saved in the address bar. Copy the address to share these assumptions.';}
-});
-$('#download').addEventListener('click',()=>{
-  const results=evaluate(state);
-  const data={title:'UGC Policy Atlas expected value',modelVersion:7,createdAt:new Date().toISOString(),units:'Constant 2026 USD; probabilities in percent or percentage points as labeled',assumptions:state,results,sources:[...document.querySelectorAll('.evidence a')].map(a=>({title:a.textContent,url:a.href})),interpretation:'Results depend on the selected assumptions. Dollar benefits have not been converted to health or other welfare measures.'};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ugc-policy-atlas-scenario.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('#status').textContent='Assumptions and calculated results exported.';
 });
 render();$('#status').textContent=initialMessage;

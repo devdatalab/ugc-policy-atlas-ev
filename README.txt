@@ -14,7 +14,7 @@ Full-scale assumptions
 - Adopted reforms that deliver benefits: 55%, shared across both channels.
 - Expected successful reforms: 5 * 1 * 1 * 1 * .05 * .55 + 1000 * .70 * .50 * 1 * .025 * .55 = 4.95.
 
-The opportunity share and implementation success rate are scenario inputs, not estimates from the cited studies. A separate 250-city comparison uses 80% data usability in that group, 20% feasible opportunities, and a shared 50% implementation rate. Each preset is editable.
+The opportunity share and implementation success rate are scenario inputs, not estimates from the cited studies. All inputs are editable.
 
 Benefits and costs
 The annual worker-benefit benchmark is 0.123% of city GDP, derived from the worker component of the ADB Bengaluru transit/land-use complementarity estimate. The model retains 25% of that benchmark for successful reforms. Population and GDP inputs are provisional size-band assumptions, not an imported UGC city ranking.
@@ -35,4 +35,4 @@ https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-githu
 https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
 
 Evidence
-Source links, assumptions, equations, and limitations are provided in the app. Scenarios can be shared in a URL fragment or exported as JSON. These links contain assumptions, not account data.
+Source links, assumptions, equations, and limitations are provided in the app. Settings are saved locally in the browser.

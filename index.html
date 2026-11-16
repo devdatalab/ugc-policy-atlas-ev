@@ -5,22 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Estimate the value of the UGC Policy Atlas through direct engagement and independent use.">
   <title>UGC Policy Atlas — expected value</title>
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
 <main>
-  <header>
-    <div><h1>UGC Policy Atlas: expected value</h1><p>UGC data for 10,000 cities. Choose how many have policy documents below.</p></div>
-    <div class="actions"><button id="share" type="button">Copy scenario link</button><button id="download" type="button">Export assumptions</button><button id="reset" type="button">Reset</button></div>
-  </header>
-  <div class="scenario-controls"><button id="full-scale" type="button">Full scale: 1,000 cities</button> <button id="comparison" type="button">250-city comparison</button></div>
+  <header><h1>UGC Policy Atlas: expected value</h1></header>
   <div id="status" class="status" role="status"></div>
   <section class="results" aria-label="Portfolio results" aria-live="polite" aria-atomic="true">
     <div><span>Net expected benefit</span><strong id="net"></strong><small>Present value, after all costs</small></div>
     <div><span>Benefit per Atlas dollar</span><strong id="multiple"></strong><small>After policy costs; before the grant</small></div>
-    <div><span>Expected number of additional successful reforms</span><strong id="implemented"></strong><small>Reforms caused by the Atlas</small></div>
+    <div><span>Expected number of additional successful reforms</span><strong id="implemented"></strong><small>Estimated reforms...</small></div>
   </section>
-  <div class="contributions" id="contributions" aria-label="Benefit contribution by channel"></div>
   <section class="shared" aria-labelledby="investment-title">
     <h2 id="investment-title">Investment and delivery</h2>
     <div id="shared-controls" class="control-grid"></div>
@@ -32,15 +27,13 @@
   </details>
   <div class="channels">
     <section class="channel direct" aria-labelledby="direct-title">
-      <div class="section-title"><h2 id="direct-title">1. Direct policy engagement</h2><label class="switch"><input type="checkbox" id="direct-enabled" checked> Count channel</label></div>
-      <p class="note">Selected Indian megacities.</p>
+      <h2 id="direct-title">Channel 1: Direct Engagement</h2>
       <div class="channel-summary" id="direct-summary"></div>
       <div id="direct-controls"></div>
       <details><summary>Benefit size and other assumptions</summary><div id="direct-advanced"></div></details>
     </section>
     <section class="channel open" aria-labelledby="open-title">
-      <div class="section-title"><h2 id="open-title">2. Open-platform adoption</h2><label class="switch"><input type="checkbox" id="open-enabled" checked> Count channel</label></div>
-      <p class="note">Largest remaining cities. Independent use; full policymaker consideration assumed.</p>
+      <h2 id="open-title">Channel 2: Open Platform</h2>
       <div class="channel-summary" id="open-summary"></div>
       <div id="open-controls"></div>
       <details><summary>City sizes and GDP</summary>
@@ -51,12 +44,6 @@
       <details><summary>Benefit size, implementation cost, and timing</summary><div id="open-advanced"></div></details>
     </section>
   </div>
-  <details class="wide-detail">
-    <summary>From data to reform</summary>
-    <p class="note">Each rate applies to cities that pass the preceding step.</p>
-    <div class="table-wrap"><table><thead><tr><th>Step</th><th class="numeric">Direct engagement</th><th class="numeric">Open platform</th></tr></thead><tbody id="funnel"></tbody></table></div>
-    <p class="note">Expected counts can be fractional; residents may benefit unequally.</p>
-  </details>
   <details class="wide-detail"><summary>Valuation and discounting</summary>
     <div id="valuation-controls" class="control-grid"></div>
     <p class="formula">Annual benefit per successful city = population × GDP per resident × worker-benefit benchmark × share retained.</p>
@@ -69,7 +56,6 @@
     <h2 id="audit-title">Benefits and costs</h2>
     <div class="table-wrap"><table><thead><tr><th>Present value</th><th class="numeric">Direct</th><th class="numeric">Open</th><th class="numeric">Portfolio</th></tr></thead><tbody id="audit"></tbody></table></div>
     <div id="annual-benefits" class="table-wrap"></div>
-    <details><summary>Break-even</summary><p id="break-even" class="threshold"></p></details>
     <details><summary>Sensitivity to adoption rates</summary><p class="note">Net present value, with other settings fixed. Select a cell to apply its rates.</p><div class="table-wrap"><table id="sensitivity"></table></div></details>
   </section>
   <details class="wide-detail">
@@ -86,7 +72,7 @@
     </tbody></table></div>
     <p class="evidence-gap">The Atlas adoption effect is an assumption, not an estimate from these studies.</p>
   </details>
-  <details class="wide-detail"><summary>Other possible benefits</summary>
+  <details class="wide-detail"><summary>Other benefit channels</summary>
     <dl class="mechanisms">
       <div><dt>Research and due-diligence costs saved</dt><dd>Estimate projects × hours saved × value of time. Exclude work funded by the grant and savings already counted in policy costs. Not included in the total.</dd></div>
       <div><dt>Better design and avoiding harmful policy</dt><dd>The Atlas may improve reforms that would happen anyway. Count the improvement, including avoided losses. Not included in the total.</dd></div>
@@ -95,20 +81,8 @@
       <div><dt>Private investment and development decisions</dt><dd>Clearer rules may improve site selection and reduce uncertainty. Count savings and other economic benefits, excluding construction spending and benefits already counted above.</dd></div>
     </dl>
   </details>
-  <details class="wide-detail"><summary>How to use the results</summary>
-    <ul class="checks">
-      <li><b>Count each city once.</b> Direct-engagement cities are excluded from the open-platform group, even when the direct channel is switched off.</li>
-      <li><b>Count only additional reform.</b> Compare adoption with and without the grant, allowing for work others would do anyway. Do not apply another attribution discount after estimating this difference.</li>
-      <li><b>Check whether the reform fits.</b> Applying the benchmark requires relevant transit, binding restrictions, and feasible land-use reform.</li>
-      <li><b>Budget the work.</b> The grant covers data collection, validation, maintenance, and direct engagement. Include partner and government costs. Wider policy coverage may need a larger grant.</li>
-      <li><b>Test failure and harm.</b> Slider limits are not confidence bounds. Shared political or data problems could cause many cities to fail together. Set benefits to zero or add expected harms to test the downside.</li>
-      <li><b>Check who benefits.</b> These dollar estimates are not cash transfers or health outcomes. Comparing causes requires accounting for recipients’ incomes and gains and losses across cities.</li>
-      <li><b>Compare with a smaller project.</b> Could research for the five engaged cities achieve similar benefits at lower cost? Wider coverage needs enough value from comparisons, finding opportunities, or independent use to justify its cost.</li>
-      <li><b>Measure use and results.</b> Validate policy data and population boundaries. Record who uses the Atlas, existing reform plans, and changes in regulations, permits, and construction. Randomized invitations or phased access could help test its effect on policy work.</li>
-    </ul>
-  </details>
-  <footer><a href="https://github.com/devdatalab/ugc-policy-atlas-ev" target="_blank" rel="noreferrer">Source code and model tests</a>. Settings save locally. Scenario links include the selected assumptions.</footer>
+  <footer><a href="https://github.com/devdatalab/ugc-policy-atlas-ev" target="_blank" rel="noreferrer">Source code and model tests</a>. Settings save locally.</footer>
 </main>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=9"></script>
 </body>
 </html>
