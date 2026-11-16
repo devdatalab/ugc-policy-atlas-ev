@@ -15,6 +15,19 @@ export const DEFAULTS = {
 };
 
 export const clone = value => JSON.parse(JSON.stringify(value));
+export function scenarioPreset(name) {
+  const s=clone(DEFAULTS);
+  if(name==='pessimistic') {
+    s.implement=35;
+    Object.assign(s.direct,{upliftPP:2,retained:10,delay:7});
+    Object.assign(s.open,{dataQuality:50,eligible:25,upliftPP:.5,retained:10,delay:10});
+  } else if(name==='optimistic') {
+    s.implement=75;
+    Object.assign(s.direct,{upliftPP:8,retained:40,delay:3});
+    Object.assign(s.open,{dataQuality:85,eligible:65,upliftPP:4,retained:40,delay:5});
+  } else if(name!=='median') throw new Error('Unknown scenario');
+  return s;
+}
 export function comparisonScenario() {
   const s=clone(DEFAULTS);
   s.open.count=250;s.open.eligible=20;

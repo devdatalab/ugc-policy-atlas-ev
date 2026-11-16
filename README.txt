@@ -26,6 +26,8 @@ The $1m Atlas investment is upfront and includes planned maintenance and engagem
 Availability of data, political feasibility, and actual implementation require separate validation. If the same reform would happen later anyway, shorten the additional benefit period. Count each city only once and include any omitted harms or costs. Check that the Atlas budget can deliver the chosen coverage.
 
 Running and testing
+Three scenario buttons load pessimistic, median, or optimistic assumptions. Median preserves the full-scale assumptions above. The comparison table in the app lists the changing inputs; project scope, budget, city sizes, GDP, study benchmark, policy costs, benefit duration, and discount rate stay fixed. Direct-engagement data coverage stays at 100%, and each scenario uses one shared implementation-success rate. The scenarios are illustrative, not statistical confidence bounds. Manual edits clear the active preset indicator.
+
 The app uses static HTML, CSS, and JavaScript. There is no backend, paid API, dependency installation, or build step. To run the model tests with Node.js installed: npm test.
 For a local preview: python3 -m http.server 8769 --bind 127.0.0.1
 

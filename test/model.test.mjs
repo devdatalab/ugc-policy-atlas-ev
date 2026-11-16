@@ -1,7 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DEFAULTS,clone,evaluate,annuity,normalize,comparisonScenario} from '../model.js';
+import {DEFAULTS,clone,evaluate,annuity,normalize,comparisonScenario,scenarioPreset} from '../model.js';
 const close=(a,b)=>assert.ok(Math.abs(a-b)<Math.max(1e-6,Math.abs(b)*1e-10),`${a} != ${b}`);
+
+test('scenario presets preserve the median and fixed project scope',()=>{
+  assert.deepEqual(scenarioPreset('median'),DEFAULTS);
+  const outcomes=['pessimistic','median','optimistic'].map(name=>{
+    const s=scenarioPreset(name),r=evaluate(s);
+    assert.deepEqual(r.state,normalize(s));
+    for(const key of ['grantM','duration','discountPct','benchmarkPct']) assert.equal(s[key],DEFAULTS[key]);
+    for(const channel of ['direct','open']) {
+      assert.equal(s[channel].count,DEFAULTS[channel].count);
+      assert.equal(s[channel].policyCostM,DEFAULTS[channel].policyCostM);
+      close(r[channel].implementations/r[channel].adoptions,s.implement/100);
+    }
+    assert.equal(s.direct.dataQuality,100);
+    return r;
+  });
+  for(let i=1;i<outcomes.length;i++) {
+    assert.ok(outcomes[i].net>outcomes[i-1].net);
+    assert.ok(outcomes[i].implementations>outcomes[i-1].implementations);
+  }
+  const edited=scenarioPreset('median');edited.open.count=1;
+  assert.equal(scenarioPreset('median').open.count,1000);
+});
 
 test('portfolio groups are disjoint and population-weighted',()=>{
   const r=evaluate(DEFAULTS);

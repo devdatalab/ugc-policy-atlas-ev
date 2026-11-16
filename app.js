@@ -1,4 +1,4 @@
-import { UGC_CITIES, DEFAULTS, clone, normalize, evaluate } from './model.js';
+import { UGC_CITIES, DEFAULTS, clone, normalize, evaluate, scenarioPreset } from './model.js?v=13';
 
 const storageKey='ugc-atlas-ev-v7';
 const $=s=>document.querySelector(s);
@@ -41,6 +41,23 @@ const defs={
   'otherCostsM':['Other expected costs or harms',0,50,.5,'$m PV','Expected present value of costs or harms omitted elsewhere.']
 };
 const get=(o,path)=>path.split('.').reduce((v,k)=>v[k],o);
+const presetNames=['pessimistic','median','optimistic'];
+const presets=Object.fromEntries(presetNames.map(name=>[name,normalize(scenarioPreset(name))]));
+const scenarioRows=[
+  ['Usable policy data · platform','open.dataQuality','%'],
+  ['Feasible reform · platform','open.eligible','%'],
+  ['Adoption increase · direct','direct.upliftPP',' pp'],
+  ['Adoption increase · platform','open.upliftPP',' pp'],
+  ['Adopted reforms that deliver benefits','implement','%'],
+  ['Benefit size relative to benchmark · both channels','direct.retained','%'],
+  ['Delay before benefits · direct','direct.delay',' years'],
+  ['Delay before benefits · platform','open.delay',' years']
+];
+$('#scenario-assumptions').innerHTML=scenarioRows.map(([label,path,unit])=>`<tr><th scope="row">${label}</th>${presetNames.map(name=>`<td class="numeric">${n(get(presets[name],path))}${unit}</td>`).join('')}</tr>`).join('');
+$('.scenario-controls').addEventListener('click',event=>{
+  const button=event.target.closest('[data-scenario]');if(!button)return;
+  state=clone(presets[button.dataset.scenario]);$('#status').textContent='';render();persist();
+});
 const put=(o,path,v)=>{const keys=path.split('.');if(keys.length===1)o[keys[0]]=v;else o[keys[0]][keys[1]]=v;};
 function controls(container,paths){
   const target=$(container);
@@ -77,6 +94,9 @@ function sync(){
 function render(){
   state.direct.enabled=true;state.open.enabled=true;
   const r=evaluate(state);state=r.state;
+  const matched=presetNames.find(name=>JSON.stringify(state)===JSON.stringify(presets[name]));
+  document.querySelectorAll('[data-scenario]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.scenario===matched)));
+  $('#custom-scenario').hidden=Boolean(matched);
   const d=r.direct,o=r.open;
   $('#net').textContent=money(r.net);$('#net').classList.toggle('negative',r.net<0);
   $('#multiple').textContent=n(r.benefitMultiple,1)+'×';
