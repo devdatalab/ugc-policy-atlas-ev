@@ -90,13 +90,13 @@ function render(){
   $('#population-total').textContent=`${people(o.population)} residents · ${n(o.population/Math.max(o.count,1)/1e6,2)}m per city on average.`;
   const audit=[
     ['Worker benefits (present value)',money(d.gross),money(o.gross),money(r.gross)],
-    ['Extra policy costs',money(-d.costs),money(-o.costs),money(-r.policyCosts)],
-    ['Other costs / harms','—','—',money(-r.otherCosts)],
+    ['Expected policy implementation costs',money(-d.costs),money(-o.costs),money(-r.policyCosts)],
+    ...(r.otherCosts!==0?[['Other costs / harms','—','—',money(-r.otherCosts)]]:[]),
     ['Benefits after policy costs',money(d.net),money(o.net),money(r.beforeGrant)],
     ['Atlas investment (counted once)','—','—',money(-r.grant)],
     ['Net expected benefit','—','—',money(r.net)]
   ];
-  $('#audit').innerHTML=audit.map(([label,a,b,c],i)=>`<tr class="${i===5?'total-row':''}"><th scope="row">${label}</th><td class="numeric">${a}</td><td class="numeric">${b}</td><td class="numeric">${c}</td></tr>`).join('');
+  $('#audit').innerHTML=audit.map(([label,a,b,c],i)=>`<tr class="${i===audit.length-1?'total-row':''}"><th scope="row">${label}</th><td class="numeric">${a}</td><td class="numeric">${b}</td><td class="numeric">${c}</td></tr>`).join('');
   sensitivity();
   coverageSensitivity();
   $('#annual-benefits').innerHTML=`<table><thead><tr><th>Annual flows</th><th class="numeric">Direct</th><th class="numeric">Open</th></tr></thead><tbody><tr><th>Expected annual benefit</th><td class="numeric">${money(d.annualExpected)}</td><td class="numeric">${money(o.annualExpected)}</td></tr><tr><th>Benefit years</th><td class="numeric">${state.direct.delay+1}–${state.direct.delay+state.duration}</td><td class="numeric">${state.open.delay+1}–${state.open.delay+state.duration}</td></tr></tbody></table><p class="note">Discount rate: ${n(state.discountPct)}% per year. Policy costs are total present-value allowances; the Atlas investment is upfront.</p>`;
