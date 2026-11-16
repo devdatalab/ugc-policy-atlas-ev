@@ -29,7 +29,7 @@ const defs={
   'direct.reach':['Cities reached through engagement',0,100,5,'%','Share of eligible cities where the analysis reaches policymakers.'],
   'direct.delay':['Years before benefits begin',0,20,1,'years','A five-year delay means benefits start at the end of year six.'],
   'direct.policyCostM':['Cost per additional adoption',0,50,.5,'$m PV','Total present-value cost per additional adoption, including recurring costs and reforms that fail.'],
-  'open.count':['Cities with policy documents',0,10000,1,'cities','Selected by population after excluding the direct-engagement cities.'],
+  'open.count':['Cities targeted for inclusion in the platform',0,10000,1,'cities','Selected by population after excluding the direct-engagement cities.'],
   'open.eligible':['Cities with a feasible reform',0,100,1,'%','Share of cities with usable data that have binding restrictions and relevant transit.'],
   'open.upliftPP':['Increase in adoption probability',0,5,.1,'pp','Among cities with usable data and a feasible reform, the increase in adoption within five years caused by the Atlas.'],
   'open.retained':['Benefit size relative to benchmark',0,100,1,'%','Benefit per successful reform relative to the population- and GDP-scaled benchmark. 25% means one-quarter.'],
