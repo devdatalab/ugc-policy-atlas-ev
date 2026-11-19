@@ -20,7 +20,6 @@ function render(){
   const values=groups.map((g,i)=>benefit*shares[i]/100*weights[i]);
   const weighted=values.reduce((a,b)=>a+b,0);
   $('#direct-benefit').textContent=money(benefit);$('#weighted-value').textContent=money(weighted);$('#weighted-multiple').textContent=n(weighted/benefit,2)+'× the unweighted value; a welfare value rather than a spending forecast.';
-  $('#flow-benefit').textContent=money(benefit);$('#flow-scenario').textContent=scenario.label;$('#flow-eta').textContent='η = '+n(state.eta,1);$('#flow-weighted').textContent=money(weighted);
   $('#cost-note').textContent=`Direct policy costs (${money(state.policyCostsM*1e6)}) appear as a separate input. The headline reports benefits because cost bearers sit outside the current model.`;
   $('#groups').innerHTML=groups.map((g,i)=>`<tr><th>${g.name}</th><td class="numeric">₹${n(g.consumption,0)}</td><td class="numeric">${n(shares[i],0)}%</td><td class="numeric">${n(weights[i],2)}×</td><td class="numeric">${money(values[i])}</td></tr>`).join('');
   document.querySelectorAll('[data-key]').forEach(el=>el.value=state[el.dataset.key]);
