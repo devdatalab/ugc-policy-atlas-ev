@@ -18,13 +18,13 @@
   </div>
   <details class="scenario-comparison"><summary>Compare scenario assumptions</summary>
     <div class="table-wrap"><table><thead><tr><th>Assumption</th><th class="numeric">Pessimistic</th><th class="numeric">Median</th><th class="numeric">Optimistic</th></tr></thead><tbody id="scenario-assumptions"></tbody></table></div>
-    <p class="note">Platform uptake is shown as a share of direct engagement. These scenarios are not confidence bounds.</p>
+    <p class="note">Platform uptake is shown as a share of direct engagement. These are illustrative assumption sets rather than statistical confidence intervals.</p>
   </details>
   <div id="status" class="status" role="status"></div>
   <section class="results" aria-label="Portfolio results" aria-live="polite" aria-atomic="true">
     <div><span>Net expected benefit</span><strong id="net"></strong><small>Present value, after all costs</small></div>
     <div><span>Benefit per Atlas dollar</span><strong id="multiple"></strong><small>After policy costs; before the grant</small></div>
-    <div><span>Expected additional reforms delivering benefits</span><strong id="implemented"></strong><small>Expected value, not a literal count</small></div>
+    <div><span>Expected additional reforms delivering benefits</span><strong id="implemented"></strong><small>Probability-weighted estimate</small></div>
   </section>
   <details class="calculation-detail">
     <summary>Show calculations</summary>
@@ -79,7 +79,7 @@
   </section>
   <details class="wide-detail">
     <summary>Evidence and sources</summary>
-    <div class="table-wrap"><table class="evidence"><thead><tr><th>Source</th><th>Supports</th><th>Does not establish</th></tr></thead><tbody>
+    <div class="table-wrap"><table class="evidence"><thead><tr><th>Source</th><th>Supports</th><th>Leaves unresolved</th></tr></thead><tbody>
       <tr><th><a href="https://www.adb.org/sites/default/files/publication/922586/ewp-702-transit-improvements-land-use-policies.pdf#page=45" target="_blank" rel="noreferrer">Chen et al. · ADB 2023</a></th><td>Estimates benefits from combining transit and land-use reform. Supplies the worker-benefit benchmark.</td><td>The impact of the Atlas or a minimum benefit for other cities.</td></tr>
       <tr><th><a href="https://jhjort.github.io/MyWebsite/aer.20190830.pdf" target="_blank" rel="noreferrer">Hjort et al. · AER 2021</a></th><td>Direct provision of research to Brazilian mayors increased implementation of taxpayer reminders by about 10 percentage points.</td><td>A 10-point effect for contested zoning reforms, or any effect from passive website access.</td></tr>
       <tr><th><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11449432/" target="_blank" rel="noreferrer">DellaVigna, Kim &amp; Linos · JPE 2024</a></th><td>Only 27% of 73 tested city interventions were adopted; organizational fit matters.</td><td>The increase in adoption caused by the Atlas. The 27% is an adoption rate in a different setting.</td></tr>
@@ -89,12 +89,12 @@
       <tr><th><a href="https://population.un.org/wup/downloads/?tab=Cities" target="_blank" rel="noreferrer">UN World Urbanization Prospects 2025</a></th><td>City population estimates using consistent definitions.</td><td>The size-group estimates used here.</td></tr>
       <tr><th><a href="https://www.worldbank.org/en/results/2026/04/01/how-better-transport-drives-opportunity" target="_blank" rel="noreferrer">World Bank · urban transport results</a></th><td>Transport projects can expand access to jobs.</td><td>The effect of publishing policy data or the dollar value of better access to jobs.</td></tr>
     </tbody></table></div>
-    <p class="evidence-gap">The Atlas adoption effect is an assumption, not an estimate from these studies.</p>
+    <p class="evidence-gap">Atlas adoption effect: scenario assumption; the cited studies provide context rather than an effect estimate.</p>
   </details>
   <details class="wide-detail"><summary>Other benefit channels</summary>
     <dl class="mechanisms">
-      <div><dt>Research and due-diligence costs saved</dt><dd>Estimate projects × hours saved × value of time. Exclude work funded by the grant and savings already counted in policy costs. Not included in the total.</dd></div>
-      <div><dt>Better design and avoiding harmful policy</dt><dd>The Atlas may improve reforms that would happen anyway. Count the improvement, including avoided losses. Not included in the total.</dd></div>
+      <div><dt>Research and due-diligence costs saved</dt><dd>Estimate projects × hours saved × value of time. Exclude work funded by the grant and savings already counted in policy costs. Outside the headline total.</dd></div>
+      <div><dt>Better design and avoiding harmful policy</dt><dd>The Atlas may improve reforms that would happen anyway. Count the improvement, including avoided losses. Outside the headline total.</dd></div>
       <div><dt>Earlier reform</dt><dd>If reform would happen later without the Atlas, count only the value of bringing it forward. Shorten the benefit period accordingly.</dd></div>
       <div><dt>State or national changes and policy diffusion</dt><dd>One decision can affect many cities. Count each city once, under the appropriate channel. Shared decisions make outcomes correlated.</dd></div>
       <div><dt>Private investment and development decisions</dt><dd>Clearer rules may improve site selection and reduce uncertainty. Count savings and other economic benefits, excluding construction spending and benefits already counted above.</dd></div>
