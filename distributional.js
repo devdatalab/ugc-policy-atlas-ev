@@ -4,7 +4,7 @@ const storageKey='ugc-atlas-distributional-v1';
 const groups=[
   {name:'Bottom 40%',consumption:3473},{name:'Middle 40%',consumption:6265},{name:'Top 20%',consumption:13132}
 ];
-const scenarios={neutral:[40,40,20],worker:[60,35,5],regressive:[25,45,30]};
+const scenarios={neutral:{label:'Population-proportional',shares:[40,40,20]},worker:{label:'Worker-focused',shares:[60,35,5]},regressive:{label:'Regressive risk',shares:[25,45,30]}};
 let state={scenario:'worker',eta:1,benefitsM:null,policyCostsM:null};
 try{Object.assign(state,JSON.parse(localStorage.getItem(storageKey)||'{}'))}catch{}
 const control=(key,label,min,max,step,unit,help)=>`<div class="control"><div class="control-heading"><label for="range-${key}">${label}</label><span class="value-entry"><input id="number-${key}" type="number" min="${min}" max="${max}" step="${step}" data-key="${key}"><span>${unit}</span></span></div><input id="range-${key}" type="range" min="${min}" max="${max}" step="${step}" data-key="${key}"><p class="note">${help}</p></div>`;
@@ -15,11 +15,13 @@ const base=evaluate(dashboardState);
 if(!Number.isFinite(state.benefitsM))state.benefitsM=base.direct.gross/1e6;
 if(!Number.isFinite(state.policyCostsM))state.policyCostsM=base.direct.costs/1e6;
 function render(){
-  const shares=scenarios[state.scenario], median=6265, benefit=state.benefitsM*1e6;
+  const scenario=scenarios[state.scenario], shares=scenario.shares, median=6265, benefit=state.benefitsM*1e6;
   const weights=groups.map(g=>(median/g.consumption)**state.eta);
   const values=groups.map((g,i)=>benefit*shares[i]/100*weights[i]);
-  const weighted=values.reduce((a,b)=>a+b,0), afterCosts=weighted-state.policyCostsM*1e6;
-  $('#direct-benefit').textContent=money(benefit);$('#weighted-value').textContent=money(weighted);$('#weighted-multiple').textContent=n(weighted/benefit,2)+'× the unweighted value';$('#after-costs').textContent=money(afterCosts);
+  const weighted=values.reduce((a,b)=>a+b,0);
+  $('#direct-benefit').textContent=money(benefit);$('#weighted-value').textContent=money(weighted);$('#weighted-multiple').textContent=n(weighted/benefit,2)+'× the unweighted value; not extra cash or spending.';
+  $('#flow-benefit').textContent=money(benefit);$('#flow-scenario').textContent=scenario.label;$('#flow-eta').textContent='η = '+n(state.eta,1);$('#flow-weighted').textContent=money(weighted);
+  $('#cost-note').textContent=`Direct policy costs (${money(state.policyCostsM*1e6)}) are shown as a separate input and are not included in the distributional headline because this page does not model who bears them.`;
   $('#groups').innerHTML=groups.map((g,i)=>`<tr><th>${g.name}</th><td class="numeric">₹${n(g.consumption,0)}</td><td class="numeric">${n(shares[i],0)}%</td><td class="numeric">${n(weights[i],2)}×</td><td class="numeric">${money(values[i])}</td></tr>`).join('');
   document.querySelectorAll('[data-key]').forEach(el=>el.value=state[el.dataset.key]);
   document.querySelectorAll('[data-scenario]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.scenario===state.scenario)));
