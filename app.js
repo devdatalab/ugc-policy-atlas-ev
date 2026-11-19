@@ -1,6 +1,6 @@
 import { UGC_CITIES, DEFAULTS, clone, normalize, evaluate, scenarioPreset } from './model.js?v=13';
 
-const storageKey='ugc-atlas-ev-v7';
+const storageKey='ugc-atlas-ev-v8';
 const $=s=>document.querySelector(s);
 const n=(v,d=2)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:d}).format(v);
 const money=v=>(v<0?'−':'')+'$'+n(Math.abs(v)/1e6,2)+'m';
@@ -17,7 +17,7 @@ try {
 
 const defs={
   'grantM':['Atlas investment (upfront)',.1,5,.1,'$m','Build, validation, planned maintenance, and direct engagement.'],
-  'implement':['Adopted reforms that deliver benefits',0,100,5,'%','Share of adopted reforms that produce benefits. Accounts for weak enforcement, incomplete implementation, or little response from builders and firms. Same rate for both channels.'],
+  'implement':['Additional adoptions that deliver benefits',0,100,5,'%','Share of Atlas-attributable additional adoptions that produce benefits. “Additional” means beyond what would have happened without the Atlas. Accounts for weak enforcement, incomplete implementation, or little response from builders and firms. Same rate for both channels.'],
   'direct.dataQuality':['Usable policy data',0,100,5,'%','Share of directly engaged cities with usable data after collection and validation.'],
   'open.dataQuality':['Usable policy data',0,100,5,'%','Share of targeted cities with usable policy data.'],
   'direct.count':['Cities with direct engagement',0,20,1,'cities','Excluded from the open-platform group.'],
@@ -31,7 +31,7 @@ const defs={
   'direct.policyCostM':['Cost per additional adoption',0,50,.5,'$m PV','Total present-value cost per additional adoption, including recurring costs and reforms that fail.'],
   'open.count':['Cities targeted for inclusion in the platform',0,10000,1,'cities','Selected by population after excluding the direct-engagement cities.'],
   'open.eligible':['Cities with a feasible reform',0,100,1,'%','Share of cities with usable data that have binding restrictions and relevant transit.'],
-  'open.upliftPP':['Increase in adoption probability',0,5,.1,'pp','Among cities with usable data and a feasible reform, the increase in adoption within five years caused by the Atlas.'],
+  'open.relativeToDirect':['Platform uptake relative to direct',0,100,1,'%','The platform adoption effect as a share of the direct-engagement effect. 10% means a 0.5 percentage-point increase when direct engagement is 5 percentage points.'],
   'open.retained':['Benefit size relative to benchmark',0,100,1,'%','Benefit per successful reform relative to the population- and GDP-scaled benchmark. 25% means one-quarter.'],
   'open.delay':['Years before benefits begin',0,25,1,'years','An eight-year delay means benefits start at the end of year nine.'],
   'open.policyCostM':['Cost per additional adoption',0,50,.5,'$m PV','Total present-value cost per additional adoption, including recurring costs and reforms that fail.'],
@@ -47,8 +47,8 @@ const scenarioRows=[
   ['Usable policy data · platform','open.dataQuality','%'],
   ['Feasible reform · platform','open.eligible','%'],
   ['Adoption increase · direct','direct.upliftPP',' pp'],
-  ['Adoption increase · platform','open.upliftPP',' pp'],
-  ['Adopted reforms that deliver benefits','implement','%'],
+  ['Platform uptake · share of direct','open.relativeToDirect','%'],
+  ['Additional adoptions that deliver benefits','implement','%'],
   ['Benefit size relative to benchmark · both channels','direct.retained','%'],
   ['Delay before benefits · direct','direct.delay',' years'],
   ['Delay before benefits · platform','open.delay',' years']
@@ -74,9 +74,11 @@ function controls(container,paths){
 controls('#shared-controls',['grantM','implement']);
 controls('#direct-controls',['direct.count','direct.dataQuality','direct.populationM','direct.upliftPP']);
 controls('#direct-advanced',['direct.retained','direct.eligible','direct.reach','direct.gdpPerPerson','direct.delay','direct.policyCostM']);
-controls('#open-controls',['open.count','open.dataQuality','open.eligible','open.upliftPP']);
+controls('#open-controls',['open.count','open.dataQuality','open.eligible','open.relativeToDirect']);
 controls('#open-advanced',['open.retained','open.delay','open.policyCostM']);
 controls('#valuation-controls',['benchmarkPct','duration','discountPct','otherCostsM']);
+$('#range-direct-upliftPP').closest('.control').insertAdjacentHTML('beforeend','<p class="derived-probability" id="direct-benefit-chance" tabindex="-1"></p>');
+$('#range-open-relativeToDirect').closest('.control').insertAdjacentHTML('beforeend','<p class="derived-probability" id="open-benefit-chance" tabindex="-1"></p>');
 
 function popInput(path,label,min,max,step){return `<input type="number" data-path="open.${path}" data-kind="population" aria-label="${label}" min="${min}" max="${max}" step="${step}">`;}
 $('#population-inputs').innerHTML=`
@@ -101,10 +103,23 @@ function render(){
   $('#net').textContent=money(r.net);$('#net').classList.toggle('negative',r.net<0);
   $('#multiple').textContent=n(r.benefitMultiple,1)+'×';
   $('#implemented').textContent=n(r.implementations,2);
+  const additionalAdoptions=r.direct.adoptions+r.open.adoptions;
+  const benefitChance=cfg=>`${n(cfg.upliftPP,2)} pp adoption × ${n(state.implement,0)}% delivering benefits = ${n(cfg.upliftPP*state.implement/100,2)} pp chance of benefit`;
+  $('#direct-benefit-chance').textContent=benefitChance(state.direct);
+  $('#open-benefit-chance').textContent=benefitChance(state.open);
+  $('#implemented-calculation').innerHTML=`<span class="adoption-equation">Direct: ${n(state.direct.count,0)} × ${n(state.direct.dataQuality,0)}% × ${n(state.direct.eligible,0)}% × ${n(state.direct.upliftPP,2)} pp = <button type="button" class="calculation-link" data-jump="range-direct-upliftPP" aria-label="Direct ${n(r.direct.adoptions,2)} additional adoptions. Go to the direct adoption-effect slider.">${n(r.direct.adoptions,2)}</button></span><span class="adoption-equation">Open: ${n(state.open.count,0)} × ${n(state.open.dataQuality,0)}% × ${n(state.open.eligible,0)}% × ${n(state.open.upliftPP,2)} pp = <button type="button" class="calculation-link" data-jump="range-open-relativeToDirect" aria-label="Open ${n(r.open.adoptions,2)} additional adoptions. Go to the platform uptake slider.">${n(r.open.adoptions,2)}</button></span><span class="adoption-total">${n(additionalAdoptions,2)} additional adoptions × ${n(state.implement,0)}% = ${n(r.implementations,2)} delivering benefits</span>`;
+  const annualPotential=channel=>channel.rows.reduce((total,row)=>total+row.annualIfReformed,0);
+  const link=(text,target,label)=>`<button type="button" class="calculation-link" data-jump="${target}" aria-label="${label}">${text}</button>`;
+  const benefitEquation=(label,channel,deliveryTarget)=>`<span>${label}: ${link(`${money(annualPotential(channel))} annual potential`,'range-benchmarkPct',`Go to the annual worker-benefit benchmark.`)} × ${link(`${n(channel.implementationProbability*100,2)} pp chance of benefit`,deliveryTarget,`Go to the ${label.toLowerCase()} adoption and delivery calculation.`)} × ${link(`discounted future benefits (${n(channel.factor,2)})`,'range-discountPct','Go to discounting controls.')} = <strong>${money(channel.gross)} <span class="definition-tooltip" tabindex="0">worker benefits<span role="tooltip">“Worker benefits” is the model’s name for the estimated economic gain to workers from a successful transit-and-land-use reform—primarily better access to jobs and the resulting productivity / earnings-related gains.</span></span></strong></span><span>${label} after policy costs: ${money(channel.gross)} − ${money(channel.costs)} = ${money(channel.net)}</span>`;
+  const afterPolicyCosts=d.net+o.net;
+  const otherCostsLine=r.otherCosts!==0?` − ${money(r.otherCosts)} other costs`:'';
+  $('#multiple-calculation').innerHTML=`${benefitEquation('Direct',d,'direct-benefit-chance')}${benefitEquation('Open',o,'open-benefit-chance')}<span class="calculation-total">${money(d.net)} + ${money(o.net)} = ${money(afterPolicyCosts)} benefits after policy costs</span><span class="calculation-total">${money(afterPolicyCosts)}${otherCostsLine} − ${money(r.grant)} Atlas investment = ${money(r.net)} net expected benefit</span>`;
+  $('#net-calculation').innerHTML=`<span>Worker benefits: ${money(d.gross)} + ${money(o.gross)} = ${money(r.gross)}</span><span>Less policy costs: ${money(-r.policyCosts)}</span>${r.otherCosts!==0?`<span>Less other costs: ${money(-r.otherCosts)}</span>`:''}<span>Less Atlas investment: ${money(-r.grant)}</span><strong>${money(r.net)} net expected benefit</strong>`;
   const maxContribution=Math.max(Math.abs(d.net),Math.abs(o.net),1);
   for(const [name,c] of [['direct',d],['open',o]]) {
     $('#'+name+'-summary').innerHTML=`<p class="channel-value"><b>${money(c.net)}</b> total estimated present value</p><div class="bar-track" aria-hidden="true"><div class="bar ${c.net<0?'negative-bar':''}" style="width:${Math.abs(c.net)/maxContribution*100}%"></div></div><div class="channel-population">${n(c.count,0)} cities · ${people(c.population)} residents</div>`;
   }
+  $('#open-relative').innerHTML=`<span>Open-platform adoption probability</span><strong>${n(state.open.relativeToDirect,0)}% of direct DDL-led engagement</strong><small>${n(state.open.upliftPP,2)} pp, compared with ${n(state.direct.upliftPP,2)} pp</small>`;
   ['mega','large','other'].forEach((band,i)=>$('#'+band+'-count').textContent=n(o.rows[i].count,0));
   $('#other-available').textContent=n(UGC_CITIES-state.direct.count-state.open.megaCount-state.open.largeCount,0);
   $('#population-total').textContent=`${people(o.population)} residents · ${n(o.population/Math.max(o.count,1)/1e6,2)}m per city on average.`;
@@ -124,12 +139,12 @@ function render(){
   return r;
 }
 function sensitivity(){
-  const xs=[0,.1,.5,1,2,5],ys=[0,.5,1,2,5,10,20];
-  $('#sensitivity').innerHTML='<caption class="sr-only">Net expected value in millions of dollars for additional adoption assumptions. Select a cell to apply its rates.</caption><thead><tr><th>Direct ↓ / Open →</th>'+xs.map(x=>'<th>'+n(x)+' pp</th>').join('')+'</tr></thead><tbody>'+ys.map(y=>'<tr><th>'+n(y)+' pp</th>'+xs.map(x=>{
-    const s=clone(state);s.direct.upliftPP=y;s.open.upliftPP=x;const v=evaluate(s).net;
+  const xs=[1,5,10,25,50,100],ys=[.5,1,2,5,10,20];
+  $('#sensitivity').innerHTML='<caption class="sr-only">Net expected value in millions of dollars by direct-engagement adoption effect and platform uptake as a share of it. Select a cell to apply.</caption><thead><tr><th>Direct ↓ / Platform →</th>'+xs.map(x=>'<th>'+n(x)+'%</th>').join('')+'</tr></thead><tbody>'+ys.map(y=>'<tr><th>'+n(y)+' pp</th>'+xs.map(x=>{
+    const s=clone(state);s.direct.upliftPP=y;s.open.relativeToDirect=x;const v=evaluate(s).net;
     const alpha=Math.min(.23,.04+Math.log1p(Math.abs(v)/1e6)*.045);
     const color=v>=0?`rgba(37,108,92,${alpha})`:`rgba(160,54,54,${alpha})`;
-    return `<td><button class="${state.direct.upliftPP===y&&state.open.upliftPP===x?'current':''}" style="background:${color}" data-direct="${y}" data-open="${x}" aria-label="Direct ${y} percentage points, open ${x} percentage points: ${money(v)} net expected benefit">${money(v)}</button></td>`;
+    return `<td><button class="${state.direct.upliftPP===y&&state.open.relativeToDirect===x?'current':''}" style="background:${color}" data-direct="${y}" data-relative="${x}" aria-label="Direct ${y} percentage points, platform at ${x} percent of direct: ${money(v)} net expected benefit">${money(v)}</button></td>`;
   }).join('')+'</tr>').join('')+'</tbody>';
 }
 
@@ -161,6 +176,17 @@ document.addEventListener('input',event=>updateInput(event.target));
 document.addEventListener('change',event=>updateInput(event.target,true));
 $('#sensitivity').addEventListener('click',event=>{
   const el=event.target.closest('[data-direct]');if(!el)return;
-  state.direct.upliftPP=Number(el.dataset.direct);state.open.upliftPP=Number(el.dataset.open);render();persist();
+  state.direct.upliftPP=Number(el.dataset.direct);state.open.relativeToDirect=Number(el.dataset.relative);render();persist();
+});
+document.addEventListener('click',event=>{
+  const link=event.target.closest('[data-jump]');if(!link)return;
+  const control=document.getElementById(link.dataset.jump);if(!control)return;
+  control.closest('details')?.setAttribute('open','');
+  const card=control.closest('.control');
+  control.scrollIntoView({behavior:'smooth',block:'center'});
+  control.focus({preventScroll:true});
+  card?.classList.remove('source-highlight');
+  requestAnimationFrame(()=>card?.classList.add('source-highlight'));
+  setTimeout(()=>card?.classList.remove('source-highlight'),1800);
 });
 render();$('#status').textContent=initialMessage;

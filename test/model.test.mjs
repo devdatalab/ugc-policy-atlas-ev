@@ -37,7 +37,7 @@ test('portfolio groups are disjoint and population-weighted',()=>{
   close(r.net,r.direct.gross+r.open.gross-9000000-1e6);
 });
 test('zero causal influence yields no policy benefit or policy cost',()=>{
-  const s=clone(DEFAULTS);s.direct.upliftPP=0;s.open.upliftPP=0;
+  const s=clone(DEFAULTS);s.direct.upliftPP=0;s.open.relativeToDirect=0;
   const r=evaluate(s);assert.equal(r.gross,0);assert.equal(r.policyCosts,0);assert.equal(r.net,-1e6);
 });
 test('implementation failure retains costs of induced adoption',()=>{
@@ -103,7 +103,7 @@ test('legacy scenarios use the new ranked coverage default and preserve other in
   const old=clone(DEFAULTS);old.version=2;old.policyCities=100;old.grantM=2;
   delete old.open.count;delete old.open.megaCount;delete old.open.largeCount;
   old.open.megaShare=2.5;old.open.largeShare=17.1;old.open.reach=10;
-  const r=evaluate(old);assert.equal(r.state.version,7);assert.equal(r.state.policyCities,1005);
+  const r=evaluate(old);assert.equal(r.state.version,8);assert.equal(r.state.policyCities,1005);
   assert.deepEqual(r.open.rows.map(row=>row.count),[25,170,805]);assert.equal(r.state.grantM,2);
   assert.equal(r.state.open.reach,100);
 });

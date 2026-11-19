@@ -9,7 +9,7 @@ Estimate additional economic benefits from direct policy engagement and independ
 Full-scale assumptions
 - UGC data universe: 10,000 cities.
 - Direct engagement: five selected Indian megacities; 100% usable data; screened reform opportunities; adoption probability increased by 5 percentage points.
-- Open platform: the 1,000 largest remaining cities; 70% usable data; feasible reform opportunities in 50% of usable-data cities; adoption probability increased by 2.5 percentage points.
+- Open platform: the 1,000 largest remaining cities; 70% usable data; feasible reform opportunities in 50% of usable-data cities; adoption probability increased by 2.5 percentage points (50% of the direct-engagement effect).
 - Policymaker consideration: 100% in both channels by default.
 - Adopted reforms that deliver benefits: 55%, shared across both channels.
 - Expected successful reforms: 5 * 1 * 1 * 1 * .05 * .55 + 1000 * .70 * .50 * 1 * .025 * .55 = 4.95.

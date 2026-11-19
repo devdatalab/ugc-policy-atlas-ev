@@ -1,6 +1,6 @@
 export const UGC_CITIES = 10000;
 export const DEFAULTS = {
-  version: 7,
+  version: 8,
   grantM: 1,
   otherCostsM: 0,
   implement: 55,
@@ -8,7 +8,7 @@ export const DEFAULTS = {
   discountPct: 5,
   duration: 10,
   direct: { enabled: true, dataQuality: 100, count: 5, populationM: 18, gdpPerPerson: 5000, eligible: 100, reach: 100, upliftPP: 5, retained: 25, delay: 5, policyCostM: 1 },
-  open: { enabled: true, dataQuality: 70, count: 1000, eligible: 50, reach: 100, upliftPP: 2.5, retained: 25, delay: 8, policyCostM: 1,
+  open: { enabled: true, dataQuality: 70, count: 1000, eligible: 50, reach: 100, relativeToDirect: 50, upliftPP: 2.5, retained: 25, delay: 8, policyCostM: 1,
     megaCount: 25, megaPopulationM: 15, megaGdp: 6000,
     largeCount: 170, largePopulationM: 4, largeGdp: 4000,
     otherPopulationM: 1, otherGdp: 2500 }
@@ -20,11 +20,11 @@ export function scenarioPreset(name) {
   if(name==='pessimistic') {
     s.implement=35;
     Object.assign(s.direct,{upliftPP:2,retained:10,delay:7});
-    Object.assign(s.open,{dataQuality:50,eligible:25,upliftPP:.5,retained:10,delay:10});
+    Object.assign(s.open,{dataQuality:50,eligible:25,relativeToDirect:25,retained:10,delay:10});
   } else if(name==='optimistic') {
     s.implement=75;
     Object.assign(s.direct,{upliftPP:8,retained:40,delay:3});
-    Object.assign(s.open,{dataQuality:85,eligible:65,upliftPP:4,retained:40,delay:5});
+    Object.assign(s.open,{dataQuality:85,eligible:65,relativeToDirect:50,retained:40,delay:5});
   } else if(name!=='median') throw new Error('Unknown scenario');
   return s;
 }
@@ -59,7 +59,7 @@ export function normalize(input = {}) {
     grantM:[.1,20],otherCostsM:[0,100],implement:[0,100],benchmarkPct:[0,.5],discountPct:[0,20],duration:[1,30],
     'direct.dataQuality':[0,100],'direct.count':[0,25],'direct.populationM':[.1,50],'direct.gdpPerPerson':[100,50000],
     'direct.eligible':[0,100],'direct.reach':[0,100],'direct.upliftPP':[0,100],'direct.retained':[0,100],'direct.delay':[0,30],'direct.policyCostM':[0,100],
-    'open.dataQuality':[0,100],'open.count':[0,UGC_CITIES],'open.eligible':[0,100],'open.upliftPP':[0,100],'open.retained':[0,100],'open.delay':[0,30],'open.policyCostM':[0,100],
+    'open.dataQuality':[0,100],'open.count':[0,UGC_CITIES],'open.eligible':[0,100],'open.relativeToDirect':[0,100],'open.retained':[0,100],'open.delay':[0,30],'open.policyCostM':[0,100],
     'open.megaCount':[0,UGC_CITIES],'open.megaPopulationM':[.1,50],'open.megaGdp':[100,50000],
     'open.largeCount':[0,UGC_CITIES],'open.largePopulationM':[.1,50],'open.largeGdp':[100,50000],
     'open.otherPopulationM':[.1,50],'open.otherGdp':[100,50000]
@@ -72,6 +72,12 @@ export function normalize(input = {}) {
     if (/count$/i.test(path)||['duration','direct.delay','open.delay'].includes(path)) n=Math.round(n);
     if(keys.length===1)result[keys[0]]=n; else result[keys[0]][keys[1]]=n;
   }
+  // Express the open-platform effect relative to direct engagement. Preserve the
+  // implied ratio for older saved scenarios instead of changing their value.
+  if (!Number.isFinite(input.open?.relativeToDirect) && Number.isFinite(input.open?.upliftPP)) {
+    result.open.relativeToDirect=result.direct.upliftPP===0?0:input.open.upliftPP/result.direct.upliftPP*100;
+  }
+  result.open.upliftPP=result.direct.upliftPP*result.open.relativeToDirect/100;
   for(const key of ['direct','open']) if(typeof input[key]?.enabled==='boolean') result[key].enabled=input[key].enabled;
   const remaining=UGC_CITIES-result.direct.count;
   result.open.count=Math.min(result.open.count,remaining);

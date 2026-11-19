@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Estimate the value of the UGC Policy Atlas through direct engagement and independent use.">
   <title>UGC Policy Atlas — expected value</title>
-  <link rel="stylesheet" href="styles.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
 <main>
@@ -18,14 +18,22 @@
   </div>
   <details class="scenario-comparison"><summary>Compare scenario assumptions</summary>
     <div class="table-wrap"><table><thead><tr><th>Assumption</th><th class="numeric">Pessimistic</th><th class="numeric">Median</th><th class="numeric">Optimistic</th></tr></thead><tbody id="scenario-assumptions"></tbody></table></div>
-    <p class="note">All cases use a $1m Atlas budget, five directly engaged cities, and 1,000 platform targets. City sizes, GDP, the study benchmark, policy costs, the ten-year benefit period, and the 5% discount rate stay fixed. These scenarios are not confidence bounds.</p>
+    <p class="note">Platform uptake is shown as a share of direct engagement. These scenarios are not confidence bounds.</p>
   </details>
   <div id="status" class="status" role="status"></div>
   <section class="results" aria-label="Portfolio results" aria-live="polite" aria-atomic="true">
     <div><span>Net expected benefit</span><strong id="net"></strong><small>Present value, after all costs</small></div>
     <div><span>Benefit per Atlas dollar</span><strong id="multiple"></strong><small>After policy costs; before the grant</small></div>
-    <div><span>Expected number of additional successful reforms</span><strong id="implemented"></strong><small>Estimated reforms...</small></div>
+    <div><span>Expected additional reforms delivering benefits</span><strong id="implemented"></strong><small>Expected value, not a literal count</small></div>
   </section>
+  <details class="calculation-detail">
+    <summary>Show calculations</summary>
+    <div class="calculation-grid">
+      <div><h2>Net expected benefit</h2><div id="net-calculation"></div></div>
+      <div><h2>Benefits and policy costs</h2><div id="multiple-calculation"></div><details class="benefit-logic"><summary>How benefits are estimated</summary><ol><li><b>Annual potential:</b> take the ADB Bengaluru worker-benefit benchmark, scale it to city GDP, and apply the retained-benefit adjustment.</li><li><b>Expected delivery:</b> apply the chance of usable data, a feasible reform, policymakers being reached, Atlas-caused adoption, and benefit delivery.</li><li><b>Discounted future benefits:</b> value the ten annual benefits expected after the delay in today’s dollars, using the discount rate.</li><li><b>Costs:</b> subtract expected policy costs, then subtract the Atlas investment to calculate net expected benefit.</li></ol></details></div>
+      <div><h2>Additional adoptions</h2><div id="implemented-calculation"></div></div>
+    </div>
+  </details>
   <section class="shared" aria-labelledby="investment-title">
     <h2 id="investment-title">Investment and delivery</h2>
     <div id="shared-controls" class="control-grid"></div>
@@ -46,6 +54,7 @@
       <h2 id="open-title">Channel 2: Open Platform</h2>
       <div class="channel-summary" id="open-summary"></div>
       <div id="open-controls"></div>
+      <div class="calculated-adoption" id="open-relative" aria-live="polite"></div>
       <details><summary>City sizes and GDP</summary>
         <p class="note">Estimated size groups; coverage fills the largest first.</p>
         <div class="table-wrap"><table class="population"><thead><tr><th>City group</th><th>Available</th><th>Selected</th><th>People/city<br><small>millions</small></th><th>GDP/person<br><small>USD/year</small></th></tr></thead><tbody id="population-inputs"></tbody></table></div>
@@ -66,7 +75,7 @@
     <h2 id="audit-title">Benefits and costs</h2>
     <div class="table-wrap"><table><thead><tr><th>Present value</th><th class="numeric">Direct</th><th class="numeric">Open</th><th class="numeric">Portfolio</th></tr></thead><tbody id="audit"></tbody></table></div>
     <div id="annual-benefits" class="table-wrap"></div>
-    <details><summary>Sensitivity to adoption rates</summary><p class="note">Net present value, with other settings fixed. Select a cell to apply its rates.</p><div class="table-wrap"><table id="sensitivity"></table></div></details>
+    <details><summary>Sensitivity to adoption rates</summary><p class="note">Platform uptake is a share of direct engagement. Select a cell to apply.</p><div class="table-wrap"><table id="sensitivity"></table></div></details>
   </section>
   <details class="wide-detail">
     <summary>Evidence and sources</summary>
@@ -93,6 +102,6 @@
   </details>
   <footer><a href="https://github.com/devdatalab/ugc-policy-atlas-ev" target="_blank" rel="noreferrer">Source code and model tests</a>. Settings save locally.</footer>
 </main>
-<script type="module" src="app.js?v=13"></script>
+<script type="module" src="app.js?v=29"></script>
 </body>
 </html>
