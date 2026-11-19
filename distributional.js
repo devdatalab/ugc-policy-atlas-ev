@@ -20,7 +20,7 @@ function render(){
   const values=groups.map((g,i)=>benefit*shares[i]/100*weights[i]);
   const weighted=values.reduce((a,b)=>a+b,0);
   $('#direct-benefit').textContent=money(benefit);$('#weighted-value').textContent=money(weighted);$('#weighted-multiple').textContent=n(weighted/benefit,2)+'× the unweighted value; a welfare value rather than a spending forecast.';
-  $('#cost-note').textContent=`Direct policy costs (${money(state.policyCostsM*1e6)}) appear as a separate input. The headline reports benefits because cost bearers sit outside the current model.`;
+  $('#cost-note').textContent=`Expected direct reform implementation cost: ${money(state.policyCostsM*1e6)}. The expected-value model default is ${n(base.direct.adoptions,2)} additional adoptions × ${money(base.state.direct.policyCostM*1e6)} per adoption. This sits alongside the Atlas’s separate ${money(base.grant)} investment. The distributional headline weights benefit recipients; cost allocation remains a future extension.`;
   $('#groups').innerHTML=groups.map((g,i)=>`<tr><th>${g.name}</th><td class="numeric">₹${n(g.consumption,0)}</td><td class="numeric">${n(shares[i],0)}%</td><td class="numeric">${n(weights[i],2)}×</td><td class="numeric">${money(values[i])}</td></tr>`).join('');
   document.querySelectorAll('[data-key]').forEach(el=>el.value=state[el.dataset.key]);
   document.querySelectorAll('[data-scenario]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.scenario===state.scenario)));
