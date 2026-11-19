@@ -2,7 +2,7 @@ import {DEFAULTS,clone,evaluate} from './model.js?v=8';
 const $=s=>document.querySelector(s), n=(v,d=2)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:d}).format(v), money=v=>(v<0?'−':'')+'$'+n(Math.abs(v)/1e6,2)+'m';
 const storageKey='ugc-atlas-distributional-v1';
 const groups=[
-  {name:'Bottom 40%',consumption:3473},{name:'Middle 40%',consumption:6265},{name:'Top 20%',consumption:13132}
+  {name:'Bottom 40%',consumption:3938},{name:'Middle 40%',consumption:6877},{name:'Top 20%',consumption:13351}
 ];
 const scenarios={neutral:{label:'Population-proportional',shares:[40,40,20]},worker:{label:'Worker-focused',shares:[60,35,5]},regressive:{label:'Regressive risk',shares:[25,45,30]}};
 let state={scenario:'worker',eta:1,benefitsM:null,policyCostsM:null};
@@ -15,7 +15,7 @@ const base=evaluate(dashboardState);
 if(!Number.isFinite(state.benefitsM))state.benefitsM=base.direct.gross/1e6;
 if(!Number.isFinite(state.policyCostsM))state.policyCostsM=base.direct.costs/1e6;
 function render(){
-  const scenario=scenarios[state.scenario], shares=scenario.shares, median=6265, benefit=state.benefitsM*1e6;
+  const scenario=scenarios[state.scenario], shares=scenario.shares, median=6877, benefit=state.benefitsM*1e6;
   const weights=groups.map(g=>(median/g.consumption)**state.eta);
   const values=groups.map((g,i)=>benefit*shares[i]/100*weights[i]);
   const weighted=values.reduce((a,b)=>a+b,0);
